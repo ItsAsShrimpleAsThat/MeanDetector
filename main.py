@@ -2,6 +2,7 @@ from openai import OpenAI
 from discord.ext import commands
 from discord import app_commands
 import discord
+from time import time
 
 # ---------- Global variables ----------
 enabled = False
@@ -9,12 +10,15 @@ whitelistEnabled = False
 whitelistedChannels = []
 sensitivity = 5;
 
+lastMessageRecieved = time()
+rateLimit = 5
+
 # ---------- Intialize ChatGPT ----------
 gptKeyFile = open("gpt.key", "r") # open API key file.
 gptAPIKey = gptKeyFile.read()
 gptKeyFile.close()
 
-client = OpenAI(
+AIclient = OpenAI(
   api_key = gptAPIKey
 )
 
@@ -37,7 +41,7 @@ async def on_ready():
 # ---------- ChatGPT Functions ----------
 
 def askChatGPT(prompt):
-    completion = client.chat.completions.create(
+    completion = AIclient.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
         {"role": "user", "content": prompt}
@@ -55,19 +59,14 @@ async def enable(interaction: discord.Interaction):
 
 @client.listen("on_message")
 async def on_message(message):
+    global lastMessageRecieved
+    if(time() - lastMessageRecieved < rateLimit):
+        return
+    lastMessageRecieved = time()
     if message.author.id != client.user.id:
-        await message.reply("test")
+        chatGPTOpinion = askChatGPT(generateQuestion(message.clean_content))
+        if(chatGPTOpinion == "Mean"):
+            await message.reply("THAT'S MEAN!! CUT IT OUT NOW")
+        #await message.reply("Hi! I have not been programmed to say anything but this test message. If you see this, my code is probably working ok. If you are trying to have a conversation, please feel free to time me out for 10 minutes")
 
 client.run(discordAPIkey)
-
-"""
-completion = client.chat.completions.create(
-  model="gpt-4o-mini",
-  store=True,
-  messages=[
-    {"role": "user", "content": "test test test test"}
-  ]
-)
-
-print(completion.choices[0].message.content);
-"""
