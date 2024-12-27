@@ -3,8 +3,10 @@ from discord.ext import commands
 from discord import app_commands
 import discord
 from time import time
+import random
 
 # ---------- Global variables ----------
+meanResponses = []
 enabled = False
 whitelistEnabled = False
 whitelistedChannels = []
@@ -12,6 +14,11 @@ sensitivity = 5;
 
 lastMessageRecieved = time()
 rateLimit = 5
+
+# ---------- Load responses ----------
+responsesFile = open("mean.responses", "r")
+meanResponses = responsesFile.readlines()
+responsesFile.close();
 
 # ---------- Intialize ChatGPT ----------
 gptKeyFile = open("gpt.key", "r") # open API key file.
@@ -66,7 +73,7 @@ async def on_message(message):
     if message.author.id != client.user.id:
         chatGPTOpinion = askChatGPT(generateQuestion(message.clean_content))
         if(chatGPTOpinion == "Mean"):
-            await message.reply("THAT'S MEAN!! CUT IT OUT NOW")
+            await message.reply(meanResponses[random.randint(0, len(meanResponses) - 1)])
         #await message.reply("Hi! I have not been programmed to say anything but this test message. If you see this, my code is probably working ok. If you are trying to have a conversation, please feel free to time me out for 10 minutes")
 
 client.run(discordAPIkey)
