@@ -60,20 +60,28 @@ def generateQuestion(message):
     return f"Please determine whether the given message is mean or not. If it is mean, respond with \"Mean\". Otherwise, respond with \"Not mean\". Please judge with a sensitivity of {sensitivity}, where 0 sensitivity means letting almost everything slide, 10 means basically catching everything that could possibly be interpreted as mean in any way, and 5 means only catching the things that are *intentionally* mean. The message is: \"{message}\""
 
 # ---------- Bot Commands ----------
-@client.tree.command(name="enable", description="Enables the bot")
+@client.tree.command(name="enable", description="Enables the bot :)")
 async def enable(interaction: discord.Interaction):
-    await interaction.response.send_message("please fucking work i beg you")
+    global enabled
+    enabled = True
+    await interaction.response.send_message("Bot Enabled")
+
+@client.tree.command(name="disable", description="Disables the bot :(")
+async def disable(interaction: discord.Interaction):
+    global enabled
+    enabled = False
+    await interaction.response.send_message("Bot Disabled")
 
 @client.listen("on_message")
 async def on_message(message):
-    global lastMessageRecieved
-    if(time() - lastMessageRecieved < rateLimit):
-        return
-    lastMessageRecieved = time()
-    if message.author.id != client.user.id:
-        chatGPTOpinion = askChatGPT(generateQuestion(message.clean_content))
-        if(chatGPTOpinion == "Mean"):
-            await message.reply(meanResponses[random.randint(0, len(meanResponses) - 1)])
-        #await message.reply("Hi! I have not been programmed to say anything but this test message. If you see this, my code is probably working ok. If you are trying to have a conversation, please feel free to time me out for 10 minutes")
+    if enabled:
+        global lastMessageRecieved
+        if(time() - lastMessageRecieved > rateLimit):
+            if message.author.id != client.user.id:
+                chatGPTOpinion = askChatGPT(generateQuestion(message.clean_content))
+                if(chatGPTOpinion == "Mean"):
+                    await message.reply(meanResponses[random.randint(0, len(meanResponses) - 1)])
+                     #await message.reply("Hi! I have not been programmed to say anything but this test message. If you see this, my code is probably working ok. If you are trying to have a conversation, please feel free to time me out for 10 minutes")
+        lastMessageRecieved = time()
 
 client.run(discordAPIkey)
