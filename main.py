@@ -7,7 +7,6 @@ import random
 import functools
 
 # ---------- Global variables ----------
-meanResponses = []
 enabled = True
 whitelistEnabled = False
 whitelistedChannels = []
@@ -21,11 +20,6 @@ emojis = emojiFile.readlines()
 emojiFile.close()
 
 numEmojis = len(emojis)
-
-# ---------- Load responses ----------
-responsesFile = open("mean.responses", "r")
-meanResponses = responsesFile.readlines()
-responsesFile.close();
 
 # ---------- Intialize ChatGPT ----------
 gptKeyFile = open("gpt.key", "r") # open API key file.
@@ -92,7 +86,6 @@ async def on_message(message):
                 chatGPTOpinion = await unblocker(generateQuestion(message.clean_content))
                 print(generateQuestion(message.clean_content))
                 if(chatGPTOpinion.lower().replace(" ", "") != "notmean"):
-                    #await message.reply(meanResponses[random.randint(0, len(meanResponses) - 1)])
                     for i in range(numEmojis):
                         chatGPTOpinion = chatGPTOpinion.replace("emoji" + str(i), emojis[i])
                         chatGPTOpinion = chatGPTOpinion.replace("Emoji" + str(i), emojis[i]) #Edge case when ChatGPT decides to capitalize emoji
