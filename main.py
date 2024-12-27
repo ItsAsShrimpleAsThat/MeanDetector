@@ -3,6 +3,12 @@ from discord.ext import commands
 from discord import app_commands
 import discord
 
+# ---------- Global variables ----------
+enabled = False
+whitelistEnabled = False;
+whitelistedChannels = []
+
+# ---------- Intialize ChatGPT ----------
 gptKeyFile = open("gpt.key", "r") # open API key file.
 gptAPIKey = gptKeyFile.read()
 gptKeyFile.close()
@@ -15,6 +21,7 @@ discordKeyFile = open("discord.key", "r")
 discordAPIkey = discordKeyFile.read()
 discordKeyFile.close()
 
+# ---------- Initialize Discord bot ----------
 client = commands.Bot(command_prefix = ")", intents=discord.Intents.all())
 
 @client.event
@@ -26,9 +33,15 @@ async def on_ready():
     except:
         print("ur codes fucking broken lmao")
 
-@client.tree.command(name="enable")
+# ---------- Bot Commands ----------
+@client.tree.command(name="enable", description="Enables the bot")
 async def enable(interaction: discord.Interaction):
     await interaction.response.send_message("please fucking work i beg you")
+
+@client.listen("on_message")
+async def on_message(message):
+    if message.author.id != client.user.id:
+        await message.reply("test")
 
 client.run(discordAPIkey)
 
