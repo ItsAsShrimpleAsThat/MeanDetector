@@ -5,13 +5,14 @@ import discord
 from time import time
 import random
 import functools
+import json
 
 # ---------- Global variables ----------
 # bot settings
 enabled = True
 whitelistEnabled = False
 whitelistedChannels = []
-threshold = 6
+threshold = 7
 
 # variables to limit message sending rate
 lastMessageRecieved = 0
@@ -23,6 +24,31 @@ emojis = emojiFile.readlines()
 emojiFile.close()
 numEmojis = len(emojis)
 
+# ---------- Load settings ----------
+settingsFile = open("bot.settings", "r") # Read from file
+settingsJSON = settingsFile.read()
+settingsFile.close()
+
+if len(settingsJSON) > 0:
+    settings = json.loads(settingsJSON) # convert string read from file to dictionary
+    enabled = settings["enabled"] # load those values from dictionary
+    whitelistEnabled = settings["whitelistEnabled"]
+    whitelistedChannels = settings["whitelistedChannels"]
+    threshold = settings["threshold"]
+
+# ---------- Saving ----------
+def save():
+    settingsDict = { "enabled": enabled, 
+                     "whitelistEnabled": whitelistEnabled,  
+                     "whitelistedChannels": whitelistedChannels,
+                     "threshold": threshold 
+                   }
+    
+    settingsJSON = json.dumps(settingsDict);
+    settingsFile = open("bot.settings", "w")
+    settingsFile.write(settingsJSON)
+    settingsFile.close()
+    
 # ---------- Intialize ChatGPT ----------
 gptKeyFile = open("gpt.key", "r") # open API key file.
 gptAPIKey = gptKeyFile.read()
