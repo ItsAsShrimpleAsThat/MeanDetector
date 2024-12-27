@@ -105,6 +105,17 @@ async def disable(interaction: discord.Interaction):
     enabled = False
     await interaction.response.send_message("Bot Disabled")
 
+@client.tree.command(name="threshold", description="Set the threshold for when messages are deemed to be mean. 0-10")
+@app_commands.describe(value="Threshold value from 0-10 to determine when a message is mean. Use /help for more info")
+async def threshold(interaction: discord.Interaction, value: int):
+    global threshold
+    if(value > 0 and value <= 10):
+        threshold = value
+        save()
+        await interaction.response.send_message("Set threshold to: " + str(value) + "!")
+    else:
+        await interaction.response.send_message(content="Must be between 0 and 10!", ephemeral=True)
+
 @client.listen("on_message")
 async def on_message(message):
     if enabled:
